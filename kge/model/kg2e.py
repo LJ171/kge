@@ -64,9 +64,10 @@ class KG2E(KgeModel):
     ):
         self._init_configuration(config, configuration_key)
         self.dim = self.get_option("entity_embedder.dim")
-        self.set_option("entity_embedder.dim", self.dim * 2, log=True)
-        if self.get_option("relation_embedder.dim") < 0:
-            self.set_option("relation_embedder.dim", self.dim * 2, log=True)
+        if not init_for_load_only:
+            self.set_option("entity_embedder.dim", self.dim * 2, log=True)
+            if self.get_option("relation_embedder.dim") < 0:
+                self.set_option("relation_embedder.dim", self.dim * 2, log=True)
         self.c_min = self.get_option('c_min')
         self.c_max = self.get_option('c_max')
         super().__init__(
@@ -76,7 +77,8 @@ class KG2E(KgeModel):
             configuration_key=self.configuration_key,
             init_for_load_only=init_for_load_only,
         )
-        self._apply_constraints()
+        if not init_for_load_only:
+            self._apply_constraints()
 
     @torch.no_grad()
     def _apply_constraints(self):
